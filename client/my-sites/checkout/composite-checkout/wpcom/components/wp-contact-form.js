@@ -102,13 +102,6 @@ const BillingFormFields = styled.div`
 	}
 `;
 
-const FormField = styled( Field )`
-	margin-top: 16px;
-	:first-of-type {
-		margin-top: 0;
-	}
-`;
-
 const GridRow = styled.div`
 	display: -ms-grid;
 	display: grid;
@@ -126,30 +119,6 @@ const FieldRow = styled( GridRow )`
 		margin-top: 0;
 	}
 `;
-
-function isEligibleForVat( country ) {
-	//TODO: Detect whether people are in EU or AU and return true if they are
-	const countriesWithVAT = [];
-	return countriesWithVAT.includes( country );
-}
-
-function VatIdField() {
-	const translate = useTranslate();
-	const { vatId } = useSelect( ( select ) => select( 'wpcom' ).getContactInfo() );
-	const { updateVatId } = useDispatch( 'wpcom' );
-
-	return (
-		<FormField
-			id="contact-vat-id"
-			type="Number"
-			label={ translate( 'VAT identification number' ) }
-			value={ vatId.value }
-			onChange={ updateVatId }
-			isError={ vatId.isTouched && ! isValid( vatId ) }
-			errorMessage={ translate( 'This field is required.' ) }
-		/>
-	);
-}
 
 function TaxFields( {
 	section,
@@ -206,7 +175,6 @@ TaxFields.propTypes = {
 };
 
 function ContactFormSummary( { isDomainFieldsVisible, isGSuiteInCart } ) {
-	const translate = useTranslate();
 	const contactInfo = useSelect( ( select ) => select( 'wpcom' ).getContactInfo() );
 
 	const showDomainContactSummary = isDomainFieldsVisible;
@@ -270,17 +238,6 @@ function ContactFormSummary( { isDomainFieldsVisible, isGSuiteInCart } ) {
 
 					{ postalAndCountry && <SummaryLine>{ postalAndCountry }</SummaryLine> }
 				</SummaryDetails>
-
-				{ contactInfo.vatId.value?.length > 0 && (
-					<SummaryDetails>
-						{ contactInfo.vatId.value?.length > 0 && (
-							<SummaryLine>
-								{ translate( 'VAT indentification number:' ) }
-								{ contactInfo.vatId.value }
-							</SummaryLine>
-						) }
-					</SummaryDetails>
-				) }
 			</div>
 		</GridRow>
 	);
@@ -299,7 +256,6 @@ function ContactDetailsContainer( {
 	shouldShowContactDetailsValidationErrors,
 	isDisabled,
 } ) {
-	const requiresVatId = isEligibleForVat( contactInfo.countryCode.value );
 	const domainNames = useDomainNamesInCart();
 	const { updateDomainContactFields, updateCountryCode, updatePostalCode } = useDispatch( 'wpcom' );
 	const contactDetails = prepareDomainContactDetails( contactInfo );
@@ -321,24 +277,20 @@ function ContactDetailsContainer( {
 					shouldShowContactDetailsValidationErrors={ shouldShowContactDetailsValidationErrors }
 					isDisabled={ isDisabled }
 				/>
-				{ requiresVatId && <VatIdField /> }
 			</React.Fragment>
 		);
 	}
 
 	if ( isGSuiteInCart ) {
 		return (
-			<React.Fragment>
-				<DomainContactDetails
-					domainNames={ domainNames }
-					contactDetails={ contactDetails }
-					contactDetailsErrors={ contactDetailsErrors }
-					updateDomainContactFields={ updateDomainContactFields }
-					shouldShowContactDetailsValidationErrors={ shouldShowContactDetailsValidationErrors }
-					isDisabled={ isDisabled }
-				/>
-				{ requiresVatId && <VatIdField /> }
-			</React.Fragment>
+			<DomainContactDetails
+				domainNames={ domainNames }
+				contactDetails={ contactDetails }
+				contactDetailsErrors={ contactDetailsErrors }
+				updateDomainContactFields={ updateDomainContactFields }
+				shouldShowContactDetailsValidationErrors={ shouldShowContactDetailsValidationErrors }
+				isDisabled={ isDisabled }
+			/>
 		);
 	}
 
@@ -355,7 +307,6 @@ function ContactDetailsContainer( {
 				countriesList={ countriesList }
 				isDisabled={ isDisabled }
 			/>
-			{ requiresVatId && <VatIdField /> }
 		</React.Fragment>
 	);
 }
