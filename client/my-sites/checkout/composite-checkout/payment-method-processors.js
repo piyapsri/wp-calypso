@@ -59,7 +59,7 @@ export function genericRedirectProcessor( paymentMethodId, submitData, getThankY
 			postalCode: select( 'wpcom' )?.getContactInfo?.()?.postalCode?.value,
 			subdivisionCode: select( 'wpcom' )?.getContactInfo?.()?.state?.value,
 			siteId: select( 'wpcom' )?.getSiteId?.(),
-			domainDetails: getDomainDetails( select ),
+			domainDetails: getDomainDetails(),
 		},
 		wpcomTransaction
 	);
@@ -76,7 +76,7 @@ export function applePayProcessor( submitData ) {
 		{
 			...submitData,
 			siteId: select( 'wpcom' )?.getSiteId?.(),
-			domainDetails: getDomainDetails( select ),
+			domainDetails: getDomainDetails(),
 			country: select( 'wpcom' )?.getContactInfo?.()?.countryCode?.value,
 			postalCode: select( 'wpcom' )?.getContactInfo?.()?.postalCode?.value,
 		},
@@ -103,7 +103,7 @@ export async function stripeCardProcessor( submitData ) {
 			postalCode: select( 'wpcom' )?.getContactInfo?.()?.postalCode?.value,
 			subdivisionCode: select( 'wpcom' )?.getContactInfo?.()?.state?.value,
 			siteId: select( 'wpcom' )?.getSiteId?.(),
-			domainDetails: getDomainDetails( select ),
+			domainDetails: getDomainDetails(),
 			paymentMethodToken,
 		},
 		wpcomTransaction
@@ -124,7 +124,7 @@ export async function existingCardProcessor( submitData ) {
 			postalCode: select( 'wpcom' )?.getContactInfo?.()?.postalCode?.value,
 			subdivisionCode: select( 'wpcom' )?.getContactInfo?.()?.state?.value,
 			siteId: select( 'wpcom' )?.getSiteId?.(),
-			domainDetails: getDomainDetails( select ),
+			domainDetails: getDomainDetails(),
 		},
 		wpcomTransaction
 	);
@@ -151,7 +151,7 @@ export async function freePurchaseProcessor( submitData ) {
 		{
 			...submitData,
 			siteId: select( 'wpcom' )?.getSiteId?.(),
-			domainDetails: getDomainDetails( select ),
+			domainDetails: getDomainDetails(),
 			// this data is intentionally empty so we do not charge taxes
 			country: null,
 			postalCode: null,
@@ -170,7 +170,7 @@ export async function fullCreditsProcessor( submitData ) {
 		{
 			...submitData,
 			siteId: select( 'wpcom' )?.getSiteId?.(),
-			domainDetails: getDomainDetails( select ),
+			domainDetails: getDomainDetails(),
 			// this data is intentionally empty so we do not charge taxes
 			country: null,
 			postalCode: null,
@@ -206,7 +206,7 @@ export async function payPalProcessor( submitData, getThankYouUrl, couponItem ) 
 			successUrl,
 			cancelUrl,
 			siteId: select( 'wpcom' )?.getSiteId?.() ?? '',
-			domainDetails: getDomainDetails( select ),
+			domainDetails: getDomainDetails(),
 			couponId: couponItem?.wpcom_meta?.couponCode,
 			country: select( 'wpcom' )?.getContactInfo?.()?.countryCode?.value ?? '',
 			postalCode: select( 'wpcom' )?.getContactInfo?.()?.postalCode?.value ?? '',
