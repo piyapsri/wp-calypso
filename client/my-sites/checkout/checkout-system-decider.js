@@ -187,7 +187,7 @@ export default function CheckoutSystemDecider( {
 				>
 					<StripeHookProvider fetchStripeConfiguration={ fetchStripeConfigurationWpcom }>
 						<CompositeCheckout
-							siteSlug={ selectedSite?.slug }
+							siteSlug={ siteSlug }
 							siteId={ selectedSite?.ID }
 							product={ product }
 							purchaseId={ purchaseId }
