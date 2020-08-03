@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { defaultRegistry } from '@automattic/composite-checkout';
-import { format as formatUrl, parse as parseUrl } from 'url';
+import { format as formatUrl, parse as parseUrl } from 'url'; // eslint-disable-line no-restricted-imports
 
 /**
  * Internal dependencies
