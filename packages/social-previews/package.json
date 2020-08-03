@@ -9,10 +9,10 @@
 		"*.scss"
 	],
 	"keywords": [
-        "wordpress",
-        "social",
-        "seo",
-        "search"
+		"wordpress",
+		"social",
+		"seo",
+		"search"
 	],
 	"author": "Automattic Inc.",
 	"homepage": "https://github.com/Automattic/wp-calypso",
