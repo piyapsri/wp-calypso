@@ -27,6 +27,15 @@ import { prepareDomainContactDetails, prepareDomainContactDetailsErrors, isValid
 import getContactDetailsCache from 'state/selectors/get-contact-details-cache';
 import { isGSuiteProductSlug } from 'lib/gsuite';
 import CountrySelectMenu from 'my-sites/checkout/composite-checkout/wpcom/components/country-select-menu';
+import {
+	hasGoogleApps,
+	hasDomainRegistration,
+	hasTransferProduct,
+} from 'lib/cart-values/cart-items';
+import { useCart } from 'my-sites/checkout/composite-checkout/cart-provider';
+import { getTopLevelOfTld } from 'lib/domains';
+import ManagedContactDetailsFormFields from 'components/domains/contact-details-form-fields/managed-contact-details-form-fields';
+import RegistrantExtraInfoForm from 'components/domains/registrant-extra-info';
 
 const debug = debugFactory( 'calypso:composite-checkout:wp-contact-form' );
 
@@ -35,7 +44,6 @@ export default function WPContactForm( {
 	isComplete,
 	isActive,
 	countriesList,
-	renderDomainContactFields,
 	shouldShowContactDetailsValidationErrors,
 	contactValidationCallback,
 } ) {
@@ -65,12 +73,11 @@ export default function WPContactForm( {
 
 	return (
 		<BillingFormFields>
-			<RenderContactDetails
+			<ContactDetailsContainer
 				translate={ translate }
 				isDomainFieldsVisible={ isDomainFieldsVisible }
 				isGSuiteInCart={ isGSuiteInCart }
 				contactInfo={ contactInfo }
-				renderDomainContactFields={ renderDomainContactFields }
 				countriesList={ countriesList }
 				shouldShowContactDetailsValidationErrors={ shouldShowContactDetailsValidationErrors }
 				isDisabled={ isDisabled }
@@ -283,12 +290,11 @@ function joinNonEmptyValues( joinString, ...values ) {
 	return values.filter( ( value ) => value?.length > 0 ).join( joinString );
 }
 
-function RenderContactDetails( {
+function ContactDetailsContainer( {
 	translate,
 	isDomainFieldsVisible,
 	isGSuiteInCart,
 	contactInfo,
-	renderDomainContactFields,
 	countriesList,
 	shouldShowContactDetailsValidationErrors,
 	isDisabled,
@@ -296,6 +302,8 @@ function RenderContactDetails( {
 	const requiresVatId = isEligibleForVat( contactInfo.countryCode.value );
 	const domainNames = useDomainNamesInCart();
 	const { updateDomainContactFields, updateCountryCode, updatePostalCode } = useDispatch( 'wpcom' );
+	const contactDetails = prepareDomainContactDetails( contactInfo );
+	const contactDetailsErrors = prepareDomainContactDetailsErrors( contactInfo );
 
 	if ( isDomainFieldsVisible ) {
 		return (
@@ -305,14 +313,14 @@ function RenderContactDetails( {
 						'Registering a domain name requires valid contact information. Privacy Protection is included for all eligible domains to protect your personal information.'
 					) }
 				</ContactDetailsFormDescription>
-				{ renderDomainContactFields(
-					domainNames,
-					prepareDomainContactDetails( contactInfo ),
-					prepareDomainContactDetailsErrors( contactInfo ),
-					updateDomainContactFields,
-					shouldShowContactDetailsValidationErrors,
-					isDisabled
-				) }
+				<DomainContactDetails
+					domainNames={ domainNames }
+					contactDetails={ contactDetails }
+					contactDetailsErrors={ contactDetailsErrors }
+					updateDomainContactFields={ updateDomainContactFields }
+					shouldShowContactDetailsValidationErrors={ shouldShowContactDetailsValidationErrors }
+					isDisabled={ isDisabled }
+				/>
 				{ requiresVatId && <VatIdField /> }
 			</React.Fragment>
 		);
@@ -321,14 +329,14 @@ function RenderContactDetails( {
 	if ( isGSuiteInCart ) {
 		return (
 			<React.Fragment>
-				{ renderDomainContactFields(
-					domainNames,
-					prepareDomainContactDetails( contactInfo ),
-					prepareDomainContactDetailsErrors( contactInfo ),
-					updateDomainContactFields,
-					shouldShowContactDetailsValidationErrors,
-					isDisabled
-				) }
+				<DomainContactDetails
+					domainNames={ domainNames }
+					contactDetails={ contactDetails }
+					contactDetailsErrors={ contactDetailsErrors }
+					updateDomainContactFields={ updateDomainContactFields }
+					shouldShowContactDetailsValidationErrors={ shouldShowContactDetailsValidationErrors }
+					isDisabled={ isDisabled }
+				/>
 				{ requiresVatId && <VatIdField /> }
 			</React.Fragment>
 		);
@@ -348,6 +356,80 @@ function RenderContactDetails( {
 				isDisabled={ isDisabled }
 			/>
 			{ requiresVatId && <VatIdField /> }
+		</React.Fragment>
+	);
+}
+
+function DomainContactDetails( {
+	domainNames,
+	contactDetails,
+	contactDetailsErrors,
+	updateDomainContactFields,
+	shouldShowContactDetailsValidationErrors,
+	isDisabled,
+} ) {
+	const translate = useTranslate();
+	const responseCart = useCart();
+	const needsOnlyGoogleAppsDetails =
+		hasGoogleApps( responseCart ) &&
+		! hasDomainRegistration( responseCart ) &&
+		! hasTransferProduct( responseCart );
+	const getIsFieldDisabled = () => isDisabled;
+	const tlds = getAllTopLevelTlds( domainNames );
+
+	return (
+		<React.Fragment>
+			<ManagedContactDetailsFormFields
+				needsOnlyGoogleAppsDetails={ needsOnlyGoogleAppsDetails }
+				contactDetails={ contactDetails }
+				contactDetailsErrors={
+					shouldShowContactDetailsValidationErrors ? contactDetailsErrors : {}
+				}
+				onContactDetailsChange={ updateDomainContactFields }
+				getIsFieldDisabled={ getIsFieldDisabled }
+			/>
+			{ tlds.includes( 'ca' ) && (
+				<RegistrantExtraInfoForm
+					contactDetails={ contactDetails }
+					ccTldDetails={ contactDetails?.extra?.ca ?? {} }
+					onContactDetailsChange={ updateDomainContactFields }
+					contactDetailsValidationErrors={
+						shouldShowContactDetailsValidationErrors ? contactDetailsErrors : {}
+					}
+					tld={ 'ca' }
+					getDomainNames={ () => domainNames }
+					translate={ translate }
+					isManaged={ true }
+				/>
+			) }
+			{ tlds.includes( 'uk' ) && (
+				<RegistrantExtraInfoForm
+					contactDetails={ contactDetails }
+					ccTldDetails={ contactDetails?.extra?.uk ?? {} }
+					onContactDetailsChange={ updateDomainContactFields }
+					contactDetailsValidationErrors={
+						shouldShowContactDetailsValidationErrors ? contactDetailsErrors : {}
+					}
+					tld={ 'uk' }
+					getDomainNames={ () => domainNames }
+					translate={ translate }
+					isManaged={ true }
+				/>
+			) }
+			{ tlds.includes( 'fr' ) && (
+				<RegistrantExtraInfoForm
+					contactDetails={ contactDetails }
+					ccTldDetails={ contactDetails?.extra?.fr ?? {} }
+					onContactDetailsChange={ updateDomainContactFields }
+					contactDetailsValidationErrors={
+						shouldShowContactDetailsValidationErrors ? contactDetailsErrors : {}
+					}
+					tld={ 'fr' }
+					getDomainNames={ () => domainNames }
+					translate={ translate }
+					isManaged={ true }
+				/>
+			) }
 		</React.Fragment>
 	);
 }
@@ -438,4 +520,8 @@ function saveStepNumberToUrl( stepNumber ) {
 	// eslint reports this as undefined.)
 	const event = new HashChangeEvent( 'hashchange' ); // eslint-disable-line no-undef
 	window.dispatchEvent( event );
+}
+
+function getAllTopLevelTlds( domainNames ) {
+	return Array.from( new Set( domainNames.map( getTopLevelOfTld ) ) ).sort();
 }
