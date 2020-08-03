@@ -18,6 +18,7 @@ import {
 	translateCheckoutPaymentMethodToWpcomPaymentMethod,
 	prepareDomainContactDetails,
 } from 'my-sites/checkout/composite-checkout/wpcom';
+import { tryToGuessPostalCodeFormat } from 'lib/postal-code';
 
 const debug = debugFactory( 'calypso:composite-checkout:payment-method-helpers' );
 const { select } = defaultRegistry;
@@ -349,4 +350,10 @@ export function filterAppropriatePaymentMethods( {
 				allowedPaymentMethods || serverAllowedPaymentMethods
 			);
 		} );
+}
+
+export function getPostalCode() {
+	const countryCode = select( 'wpcom' )?.getContactInfo?.()?.countryCode?.value ?? '';
+	const postalCode = select( 'wpcom' )?.getContactInfo?.()?.postalCode?.value;
+	return tryToGuessPostalCodeFormat( postalCode.toUpperCase(), countryCode );
 }

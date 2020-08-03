@@ -2,12 +2,13 @@
  * External dependencies
  */
 import { defaultRegistry } from '@automattic/composite-checkout';
-import { format as formatUrl, parse as parseUrl } from 'url';
+import { format as formatUrl, parse as parseUrl } from 'url'; // eslint-disable-line no-restricted-imports
 
 /**
  * Internal dependencies
  */
 import {
+	getPostalCode,
 	getDomainDetails,
 	wpcomTransaction,
 	wpcomPayPalExpress,
@@ -56,7 +57,7 @@ export function genericRedirectProcessor( paymentMethodId, submitData, getThankY
 			successUrl,
 			cancelUrl,
 			country: select( 'wpcom' )?.getContactInfo?.()?.countryCode?.value,
-			postalCode: select( 'wpcom' )?.getContactInfo?.()?.postalCode?.value,
+			postalCode: getPostalCode(),
 			subdivisionCode: select( 'wpcom' )?.getContactInfo?.()?.state?.value,
 			siteId: select( 'wpcom' )?.getSiteId?.(),
 			domainDetails: getDomainDetails(),
@@ -78,7 +79,7 @@ export function applePayProcessor( submitData ) {
 			siteId: select( 'wpcom' )?.getSiteId?.(),
 			domainDetails: getDomainDetails(),
 			country: select( 'wpcom' )?.getContactInfo?.()?.countryCode?.value,
-			postalCode: select( 'wpcom' )?.getContactInfo?.()?.postalCode?.value,
+			postalCode: getPostalCode(),
 		},
 		wpcomTransaction
 	);
@@ -94,13 +95,13 @@ export async function stripeCardProcessor( submitData ) {
 	const paymentMethodToken = await createStripePaymentMethodToken( {
 		...submitData,
 		country: select( 'wpcom' )?.getContactInfo?.()?.countryCode?.value,
-		postalCode: select( 'wpcom' )?.getContactInfo?.()?.postalCode?.value,
+		postalCode: getPostalCode(),
 	} );
 	const pending = submitStripeCardTransaction(
 		{
 			...submitData,
 			country: select( 'wpcom' )?.getContactInfo?.()?.countryCode?.value,
-			postalCode: select( 'wpcom' )?.getContactInfo?.()?.postalCode?.value,
+			postalCode: getPostalCode(),
 			subdivisionCode: select( 'wpcom' )?.getContactInfo?.()?.state?.value,
 			siteId: select( 'wpcom' )?.getSiteId?.(),
 			domainDetails: getDomainDetails(),
@@ -121,7 +122,7 @@ export async function existingCardProcessor( submitData ) {
 		{
 			...submitData,
 			country: select( 'wpcom' )?.getContactInfo?.()?.countryCode?.value,
-			postalCode: select( 'wpcom' )?.getContactInfo?.()?.postalCode?.value,
+			postalCode: getPostalCode(),
 			subdivisionCode: select( 'wpcom' )?.getContactInfo?.()?.state?.value,
 			siteId: select( 'wpcom' )?.getSiteId?.(),
 			domainDetails: getDomainDetails(),
@@ -209,7 +210,7 @@ export async function payPalProcessor( submitData, getThankYouUrl, couponItem ) 
 			domainDetails: getDomainDetails(),
 			couponId: couponItem?.wpcom_meta?.couponCode,
 			country: select( 'wpcom' )?.getContactInfo?.()?.countryCode?.value ?? '',
-			postalCode: select( 'wpcom' )?.getContactInfo?.()?.postalCode?.value ?? '',
+			postalCode: getPostalCode(),
 			subdivisionCode: select( 'wpcom' )?.getContactInfo?.()?.state?.value ?? '',
 		},
 		wpcomPayPalExpress
