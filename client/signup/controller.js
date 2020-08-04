@@ -85,7 +85,7 @@ export default {
 		} else if (
 			context.pathname.indexOf( 'domain' ) >= 0 ||
 			context.pathname.indexOf( 'plan' ) >= 0 ||
-			context.pathname.indexOf( 'onboarding-new' ) >= 0 ||
+			context.pathname.indexOf( 'onboarding-registrationless' ) >= 0 ||
 			context.pathname.indexOf( 'wpcc' ) >= 0 ||
 			context.pathname.indexOf( 'launch-site' ) >= 0 ||
 			context.params.flowName === 'user' ||
@@ -127,7 +127,7 @@ export default {
 						const stepSectionName = getStepSectionName( context.params );
 						const localeFromParams = context.params.lang;
 						const urlWithLocale = getStepUrl(
-							'onboarding-new',
+							'onboarding-registrationless',
 							stepName,
 							stepSectionName,
 							localeFromParams

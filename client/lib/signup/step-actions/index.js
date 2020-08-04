@@ -282,7 +282,7 @@ export function createSiteWithCart( callback, dependencies, stepData, reduxStore
 		state,
 	} );
 
-	if ( isEmpty( bearerToken ) && 'onboarding-new' === flowToCheck ) {
+	if ( isEmpty( bearerToken ) && 'onboarding-registrationless' === flowToCheck ) {
 		saveToLocalStorageAndProceed( state, domainItem, themeItem, newSiteParams, callback );
 		return;
 	}
@@ -438,7 +438,7 @@ export function createAccount(
 ) {
 	const flowToCheck = flowName || lastKnownFlow;
 
-	if ( 'onboarding-new' === flowToCheck ) {
+	if ( 'onboarding-registrationless' === flowToCheck ) {
 		const { cartItem, domainItem } = dependencies;
 		const isPurchasingItem = ! isEmpty( cartItem ) || ! isEmpty( domainItem );
 
@@ -693,7 +693,7 @@ export function isDomainFulfilled( stepName, defaultDependencies, nextProps ) {
 }
 
 export function maybeRemoveStepForUserlessCheckout( stepName, defaultDependencies, nextProps ) {
-	if ( 'onboarding-new' !== nextProps.flowName ) {
+	if ( 'onboarding-registrationless' !== nextProps.flowName ) {
 		return;
 	}
 
