@@ -132,6 +132,7 @@ export default {
 							stepSectionName,
 							localeFromParams
 						);
+						removeWhiteBackground();
 						window.location = urlWithLocale;
 					} else {
 						removeWhiteBackground();
